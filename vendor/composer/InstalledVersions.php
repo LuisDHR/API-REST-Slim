@@ -30,7 +30,7 @@ private static $installed = array (
     'aliases' => 
     array (
     ),
-    'reference' => '79ea8af59646a5ec77100ccc59bfd8790eac1696',
+    'reference' => '5af0f3a3cbaba232a782445179840d3906ac0809',
     'name' => '__root__',
   ),
   'versions' => 
@@ -42,7 +42,7 @@ private static $installed = array (
       'aliases' => 
       array (
       ),
-      'reference' => '79ea8af59646a5ec77100ccc59bfd8790eac1696',
+      'reference' => '5af0f3a3cbaba232a782445179840d3906ac0809',
     ),
     'fig/http-message-util' => 
     array (
@@ -202,12 +202,12 @@ private static $installed = array (
     ),
     'slim/slim' => 
     array (
-      'pretty_version' => '4.0.0',
-      'version' => '4.0.0.0',
+      'pretty_version' => '4.4.0',
+      'version' => '4.4.0.0',
       'aliases' => 
       array (
       ),
-      'reference' => '2b0ed80b2ab4acfb5e7648797b8202e4d9aea06d',
+      'reference' => '207acac048652a35d4762a737d59e317aedc02df',
     ),
     'symfony/polyfill-php80' => 
     array (
