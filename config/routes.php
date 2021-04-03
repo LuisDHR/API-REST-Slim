@@ -9,8 +9,9 @@ return function (App $app) {
     $app->get('/getDetails/{user}/{pass}/{isbn}',       \App\Action\getDetails::class)->setName('getDetails');
     
     $app->post('/setProd',      \App\Action\setProd::class)->setName('setProd');
-    $app->post('/deleteProd',   \App\Action\deleteProd::class)->setName('deleteProd');
 
     $app->put('/updatePass',    \App\Action\updatePass::class)->setName('updatePass');
     $app->put('/updateProd',    \App\Action\updateProd::class)->setName('updateProd');
+
+    $app->delete('/deleteProd',   \App\Action\deleteProd::class)->setName('deleteProd');
 };

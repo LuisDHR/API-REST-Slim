@@ -20,11 +20,11 @@ final class setProd
     ): ResponseInterface {
         // Collect input from the HTTP request
         $data = $request->getParsedBody();
-        $user = $data["user"];
-        $pass = $data["pass"];
-        $prodJSON = $data["prodJSON"];
+        $user = $data['user'];
+        $pass = $data['pass'];
+        $prodJSON = $data['prodJSON'];
 
-        $keys = array('Autor', 'Editorial', 'ISBN', 'Nombre', 'Precio', 'Año');
+        $keys = array('Autor', 'Editorial', 'ISBN', 'Nombre', 'Precio', 'Year');
         $isbn = '';
 
         $resp = array(
@@ -123,7 +123,6 @@ final class setProd
         // Build the HTTP response
         $response->getBody()->write((string)json_encode($resp));
 
-        return $response
-            ->withHeader('Content-Type', 'application/json');
+        return $response->withHeader('Content-Type', 'application/json');
     }
 }

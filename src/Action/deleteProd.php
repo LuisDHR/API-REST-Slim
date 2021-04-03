@@ -12,7 +12,7 @@ final class deleteProd
 
     public function __construct()
     {
-        $this->database = new Firebase;
+        $this->database = new Firebase();
     }
     
     public function loggin($user, $pass, $roles)
@@ -80,14 +80,14 @@ final class deleteProd
             }
 
             if ($code == '204') {
-                $data = date('Y-m-d H:m:s');
+                $data = date('Y-m-d\TH:i:s');
                 $status = 'success';
             }
         }
 
         $res = array(
             "code"  => $code,
-            "messenger" => $this->database->read_collection('respuestas', $code),
+            "message" => $this->database->read_collection('respuestas', $code),
             "data" => $data,
             "status" => $status
         );

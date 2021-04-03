@@ -1,4 +1,7 @@
 <?php
+// UTF-8
+header('Content-Type: text/html; charset=UTF-8');
+
 // Should be set to 0 in production
 error_reporting(E_ALL);
 

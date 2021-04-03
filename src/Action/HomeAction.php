@@ -16,8 +16,6 @@ final class HomeAction
         $response->getBody()->write(json_encode($result));
 
         // return $response->withHeader('Content-Type', 'application/json');
-        return $response
-            ->withHeader('Content-Type', 'application/json')
-            ->withStatus(422);
+        return $response->withHeader('Content-Type', 'application/json');
     }
 }

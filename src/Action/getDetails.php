@@ -11,7 +11,7 @@ final class getDetails {
 
     public function __construct()
     {
-        $this->database = new Firebase;
+        $this->database = new Firebase();
         
     }
 
@@ -48,6 +48,7 @@ final class getDetails {
         $code = 999; 
         $data = '';
         $status = 'error';
+        $oferta = false;
 
         $code= $this->loggin($user, $pass, ['almacen', 'ventas']);
 
@@ -56,6 +57,8 @@ final class getDetails {
             $code = ( !is_null($resDetails) ) ? '201' : '301';
 
             if($code == '201') {
+                $detalle = json_decode(json_encode($resDetails), true);
+                $oferta = $detalle['Editorial'] === 'Ediciones Salamandra' ? true : false;
                 $data = $resDetails;
                 $status = 'seccess';
             }
@@ -66,7 +69,7 @@ final class getDetails {
             'message'   => $this->database->read_collection('respuestas', $code),
             'data'      => $data,
             'status'    => $status,
-            'oferta'    => ''
+            'oferta'    => $oferta
         );
 
         // built the HTTP response

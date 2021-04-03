@@ -59,8 +59,6 @@ final class getProd
         // Build the HTTP response
         $response->getBody()->write((string)json_encode($resp));
 
-        return $response
-            ->withHeader('Content-Type', 'application/json')
-            ->withStatus($resp['code']);
+        return $response->withHeader('Content-Type', 'application/json');
     }
 }

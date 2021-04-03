@@ -12,7 +12,7 @@ final class updateProd
 
     public function __construct()
     {
-        $this->database = new Firebase;
+        $this->database = new Firebase();
     }
 
     public function loggin($user, $pass, $roles)
@@ -51,7 +51,7 @@ final class updateProd
         $requestData = $request->getParsedBody();
         $user = $requestData['user'];
         $pass = $requestData['pass'];
-        $json = $requestData['json'];
+        $json = $requestData['prodJSON'];
 
         $code = '999';
         $data = '';
@@ -62,44 +62,51 @@ final class updateProd
         if ( $code == null )
         {
             // check json's sintax
-            // $auxJson = json_decode(json_encode($json), true);
-            $auxJson = $json;
+            $auxJson = json_decode($json, true);
+            // $auxJson = $json;
             $code = $auxJson ? '203' : '305';
 
             if ( $code == '203') 
             {
-                $isbn = array_keys($auxJson)[0]; 
+                $isbn = array_keys($auxJson)[0];
                 $resProduct = $this->database->read_document('detalles/'.$isbn);
                 $code = is_null($resProduct) ? '303' : '203';
                 
                 if ( $code == '203') 
                 {
-                    $targets = array("isbn", "categoria", "autor", "nombre", "editorial", "año", "precio");
+                    $targets = array("isbn", "autor", "nombre", "editorial", "year", "precio");
                     
                     $copyJson = array_change_key_case($auxJson[$isbn], CASE_LOWER);
                     $code = $this->validateJson($copyJson, $targets) ? '203' : '304';
 
+                    $categoria = '';
+                    if (strpos($isbn, 'LBS') !== false) {
+                        $categoria = 'libros';
+                    }
+                    if (strpos($isbn, 'CMS') !== false) {
+                        $categoria = 'comics';
+                    }
+                    if (strpos($isbn, 'MGS') !== false) {
+                        $categoria = 'mangas';
+                    }
+
                     // update product
                     if ( $code == '203' )
                     {
-                        $dir = 'productos/'.$auxJson[$isbn]['Categoria'];
-                        $arrayProduct = array($auxJson[$isbn]['ISBN'] => $auxJson[$isbn]['Nombre']);
-                        $resUpdateProduct = $this->database->update_document($dir, json_encode($arrayProduct));
+                        $resUpdateProduct = $this->database->update_collection('productos', $categoria.'/'.$isbn, $auxJson[$isbn]['Nombre']);
                         $code = is_null($resUpdateProduct) ? '999' : '203';
                     }
 
                     // update details
                     if ( $code == '203' )
                     {
-                        $dir = 'detalles/'.$auxJson[$isbn]['Categoria'];
-                        unset($auxJson[$isbn]['categoria']);
-                        $resUpdateDetaail = $this->database->update_document($dir, json_encode($auxJson));
+                        $resUpdateDetaail = $this->database->update_collection('detalles', $isbn, json_encode($auxJson[$isbn]));
                         $code = is_null($resUpdateDetaail) ? '999' : '203';
                     }
 
                     if ( $code == '203')
                     {
-                        $data = date('Y-m-s H:m:s');
+                        $data = date('Y-m-d\TH:i:s');
                         $status = 'success';
                     }
                 }

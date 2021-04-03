@@ -26,6 +26,7 @@ final class updatePass
         $resp = array(
             'code'    => 999,
             'message' => $this->database->read_collection('respuestas', 999),
+            'data' => '',
             'status'  => 'error',
         );
 
@@ -41,8 +42,10 @@ final class updatePass
 
                     // Contraseña actualizada exitosamente
                     if( !is_null($res) ) {
+                        $time = time();
                         $resp['code'] = 400;
                         $resp['message'] = $this->database->read_collection('respuestas', 400);
+                        $resp['data'] = date("Y-m-d\TH:i:s", $time);
                         $resp['status'] = 'success';
                     }
                 }
@@ -67,8 +70,6 @@ final class updatePass
         // Build the HTTP response
         $response->getBody()->write((string)json_encode($resp));
 
-        return $response
-            ->withHeader('Content-Type', 'application/json')
-            ->withStatus($resp['code']);
+        return $response->withHeader('Content-Type', 'application/json');
     }
 }
