@@ -82,8 +82,8 @@ final class updatePass
         );
 
         // Build the HTTP response
-        $response->getBody()->write((string)json_encode($resp));
+        $response->getBody()->write( (string)json_encode( $resp ) );
 
-        return $response->withHeader('Content-Type', 'application/json');
+        return $response->withHeader( 'Content-Type', 'application/json' );
     }
 }

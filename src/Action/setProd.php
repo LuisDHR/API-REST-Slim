@@ -120,14 +120,14 @@ final class setProd
 
         $resp = array(
             'code'    => $code,
-            'message' => $this->database->read_collection('respuestas', $code),
+            'message' => $this->database->read_collection( 'respuestas', $code ),
             'data'    => $data,
             'status'  => $status
         );
 
         // Build the HTTP response
-        $response->getBody()->write((string)json_encode($resp));
+        $response->getBody()->write( (string)json_encode( $resp ) );
 
-        return $response->withHeader('Content-Type', 'application/json');
+        return $response->withHeader( 'Content-Type', 'application/json' );
     }
 }
