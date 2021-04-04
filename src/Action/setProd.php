@@ -101,7 +101,7 @@ final class setProd
 
                         // Create array prod
                         $prodArray = array();
-                        $prodArray[$isbn] = $json[ $isbn ][ 'Nombre' ];
+                        $prodArray[ $isbn ] = $json[ $isbn ][ 'Nombre' ];
 
                         // Save to Database
                         $res1 = $this->database->create_document( 'detalles', $prodJSON );
