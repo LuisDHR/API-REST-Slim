@@ -14,51 +14,70 @@ final class getProd
         $this->database = new Firebase();
     }
 
-    public function __invoke(
-        ServerRequestInterface $request, 
-        ResponseInterface $response,
-        $args
-    ): ResponseInterface {
-        $user = $args['user'];
-        $pass = $args['pass'];
-        $category = $args['categoria'];
+    public function login( $user, $pass, $roles ) {
+        $resUser = $this->database->read_collection( 'usuarios', $user );
+        $codeLogin = null;
+        
+        // Verify user
+        if ( !is_null( $resUser ) ) {
+            // Verify password
+            $codeLogin = ( $resUser == md5( $pass ) ) ? null : 501;
 
-        $categoria = strtolower($category);
+            if ( is_null( $codeLogin ) )
+            {
+                $resUserDetails = json_encode( $this->database->read_collection( 'usuarios_info', $user ) );
+                $objUserDetails = json_decode( $resUserDetails, true );
+                
+                // Check role
+                $codeLogin = in_array( $objUserDetails[ 'rol' ], $roles ) ? null : 504;
+            }
+        } else {
+            $codeLogin = 500;
+        }
+
+        return $codeLogin;
+    }
+
+    public function __invoke( ServerRequestInterface $request, ResponseInterface $response, $args ): ResponseInterface 
+    {
+        // Data received
+        $user = $args[ 'user' ];
+        $pass = $args[ 'pass' ];
+        $category = $args[ 'categoria' ];
+
+        // Category to lowercase
+        $category = strtolower( $category );
+
+        // Initial response data
+        $code = 999;
+        $data = '';
+        $status = 'error';
+
+        // Verify user, password and role
+        $code = $this->login( $user, $pass, [ 'almacen', 'ventas' ] );
+
+        if ( is_null( $code ) ) {
+            // Check category
+            $resProducts = $this->database->read_collection( 'productos', $category );
+            $code =  300;
+
+            if ( !is_null( $resProducts ) ) {
+                $code = 200;
+                $data = $resProducts;
+                $status = 'success';
+            }
+        }
+
         $resp = array(
-            'code' => 999,
-            'message' => $this->database->read_collection('respuestas', 999),
-            'data' => '',
-            'status' => 'error'
+            'code' => $code,
+            'message' => $this->database->read_collection( 'respuestas', $code ),
+            'data' => $data,
+            'status' => $status
         );
 
-        $res_usuario = $this->database->read_collection('usuarios', $user);
-        if ( !is_null($res_usuario) ) {
-            if ( $res_usuario === md5($pass) ) {
-                $res_productos = $this->database->read_collection('productos', $categoria);
-                if ( !is_null($res_productos) ) {
-                    $resp['code'] = 200;
-                    $resp['message'] = $this->database->read_collection('respuestas', 200);
-                    $resp['status'] = 'success';
-                    $resp['data'] = $res_productos;
-                }
-                else {
-                    $resp['code'] = 300;
-                    $resp['message'] = $this->database->read_collection('respuestas', 300);
-                }
-            }
-            else {
-                $resp['code'] = 501;
-                $resp['message'] = $this->database->read_collection('respuestas', 501);;
-            }
-        }
-        else {
-            $resp['code'] = 500;
-            $resp['message'] = $this->database->read_collection('respuestas', 500);;
-        }
-
         // Build the HTTP response
-        $response->getBody()->write((string)json_encode($resp));
+        $response->getBody()->write( (string)json_encode( $resp ) );
 
-        return $response->withHeader('Content-Type', 'application/json');
+        return $response->withHeader( 'Content-Type', 'application/json' );
     }
 }
