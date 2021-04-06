@@ -40,12 +40,16 @@ final class deleteProd
     }
  
 
-    public function __invoke( ServerRequestInterface $request, ResponseInterface $reponse ): ResponseInterface
+    public function __invoke( ServerRequestInterface $request, ResponseInterface $reponse, $args ): ResponseInterface
     {
-        $requesData = $request->getParsedBody();
-        $user = $requesData['user'];
-        $pass = $requesData['pass'];
-        $isbn = $requesData['isbn'];
+        // $requesData = $request->getParsedBody();
+        // $user = $requesData['user'];
+        // $pass = $requesData['pass'];
+        // $isbn = $requesData['isbn'];
+        // Data received
+        $user = $args[ 'user' ];
+        $pass = $args[ 'pass' ];
+        $isbn = $args[ 'isbn' ];
 
         $code = '999';
         $data = '';
