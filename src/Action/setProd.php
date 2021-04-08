@@ -14,7 +14,7 @@ final class setProd
         $this->database = new Firebase();
     }
 
-    public function login( $user, $pass ) {
+    public function login( $user, $pass, $roles ) {
         $resUser = $this->database->read_collection( 'usuarios', $user );
         $codeLogin = null;
         
@@ -29,7 +29,7 @@ final class setProd
                 $objUserDetails = json_decode( $resUserDetails, true );
                 
                 // Check role
-                $codeLogin = ( $objUserDetails[ 'rol' ] === 'ventas' ) ? null : 504;
+                $codeLogin = in_array($objUserDetails[ 'rol' ], $roles) ? null : 504;
             }
         } else {
             $codeLogin = 500;
@@ -69,7 +69,7 @@ final class setProd
         $status = 'error';
 
         // Verify user, password and role
-        $code = $this->login( $user, $pass, [ 'almacen', 'ventas' ] );
+        $code = $this->login( $user, $pass, [ 'almacen' ] );
 
         if ( is_null( $code ) ) {
             // JSON syntax
