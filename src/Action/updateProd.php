@@ -22,27 +22,36 @@ final class updateProd
 
         if( !is_null($resUser) )
         {
-            $codeLogin = ( $resUser == md5($pass) ) ? null : '501';
+            $codeLogin = ( $resUser == md5($pass) ) ? null : 501;
 
             if ( is_null($codeLogin) )
             {
                 $resUserDetails = json_encode( $this->database->read_collection('usuarios_info', $user) );
                 $objUserDetails = json_decode( $resUserDetails, true );  
-                $codeLogin = in_array( $objUserDetails["rol"], $roles ) ? null : '504';
+                $codeLogin = in_array( $objUserDetails["rol"], $roles ) ? null : 504;
             } 
         }
         else {
-            $codeLogin = '500';
+            $codeLogin = 500;
         }
 
         return $codeLogin;
     }
 
-    private function validateJson($json, $targets)
-    {
-        foreach ( $targets as &$value )
-            if ( is_null($json[$value]) ||  strlen((string)$json[$value]) < 1 )
+    public function validateJSON( $json ) {
+        $keys = array( 'Autor', 'Editorial', 'ISBN', 'Nombre', 'Precio', 'Year' );
+        $jsonKeys = array_keys( $json );
+
+        if ( !empty( array_diff( $keys, $jsonKeys ) ) ) {
+            return false;
+        }
+
+        foreach ( $keys as $key ) {
+            if ( is_null( $json[ $key ] ) || empty( $json[ $key ] ) ) {
                 return false;
+            }
+        }
+
         return true;
     }
 
@@ -53,61 +62,53 @@ final class updateProd
         $pass = $requestData['pass'];
         $json = $requestData['prodJSON'];
 
-        $code = '999';
+        $code = 999;
         $data = '';
         $status = 'error';
 
         $code = $this->loggin($user, $pass, ['almacen']);
 
-        if ( $code == null )
+        if ( is_null( $code ) )
         {
             // check json's sintax
             $auxJson = json_decode($json, true);
-            // $auxJson = $json;
-            $code = $auxJson ? '203' : '305';
+            $code = 305;
 
-            if ( $code == '203') 
+            if ( !is_null( $auxJson ) )
             {
                 $isbn = array_keys($auxJson)[0];
-                $resProduct = $this->database->read_document('detalles/'.$isbn);
-                $code = is_null($resProduct) ? '303' : '203';
-                
-                if ( $code == '203') 
-                {
-                    $targets = array("isbn", "autor", "nombre", "editorial", "year", "precio");
-                    
-                    $copyJson = array_change_key_case($auxJson[$isbn], CASE_LOWER);
-                    $code = $this->validateJson($copyJson, $targets) ? '203' : '304';
+                $code = 304;
 
-                    $categoria = '';
-                    if (strpos($isbn, 'LBS') !== false) {
-                        $categoria = 'libros';
-                    }
-                    if (strpos($isbn, 'CMS') !== false) {
-                        $categoria = 'comics';
-                    }
-                    if (strpos($isbn, 'MGS') !== false) {
-                        $categoria = 'mangas';
-                    }
+                if ( $this->validateJSON( $auxJson[ $isbn ] ) ) {
+                    // Existence of the product
+                    $resExistencia = $this->database->read_collection( 'detalles', $isbn );
+                    $code = 303;
 
-                    // update product
-                    if ( $code == '203' )
-                    {
-                        $resUpdateProduct = $this->database->update_collection('productos', $categoria.'/'.$isbn, $auxJson[$isbn]['Nombre']);
-                        $code = is_null($resUpdateProduct) ? '999' : '203';
-                    }
+                    if ( !is_null( $resExistencia ) ) {
+                        $categoria = '';
+                        if (strpos($isbn, 'LBS') !== false) {
+                            $categoria = 'libros';
+                        }
+                        if (strpos($isbn, 'CMS') !== false) {
+                            $categoria = 'comics';
+                        }
+                        if (strpos($isbn, 'MGS') !== false) {
+                            $categoria = 'mangas';
+                        }
 
-                    // update details
-                    if ( $code == '203' )
-                    {
-                        $resUpdateDetaail = $this->database->update_collection('detalles', $isbn, json_encode($auxJson[$isbn]));
-                        $code = is_null($resUpdateDetaail) ? '999' : '203';
-                    }
+                        // Name
+                        $name = '"'.$auxJson[ $isbn ][ 'Nombre' ].'"';
 
-                    if ( $code == '203')
-                    {
-                        $data = date('Y-m-d\TH:i:s');
-                        $status = 'success';
+                        // Registrar en la base de datos
+                        $res1 = $this->database->update_collection( 'detalles', $isbn, json_encode( $auxJson[ $isbn ] ) );
+                        $res2 = $this->database->update_collection( 'productos', $categoria.'/'.$isbn, $name );
+
+                        $code = 999;
+                        if ( !is_null( $res1 ) && !is_null( $res2 ) ) {
+                            $code = 203;
+                            $data = date( 'Y-m-d\TH:i:s' );
+                            $status = 'success';
+                        }
                     }
                 }
             } 
